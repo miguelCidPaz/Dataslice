@@ -1,0 +1,68 @@
+# === Archivos compilados ===
+*.class
+*.jar
+*.war
+*.ear
+
+# === Directorios de build ===
+/target/
+/bin/
+/build/
+
+# === Configuraciones locales de Eclipse/STS ===
+.project
+.classpath
+.settings/
+.apt_generated/
+.factorypath
+.springBeans
+
+# === IDEs y OS ===
+*.log
+*.iml
+*.ipr
+*.iws
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# === Archivos temporales y de test ===
+*.tmp
+*.bak
+*.orig
+*.rej
+*.gz
+*.out
+*.err
+*.log
+
+# === Datos generados ===
+/schemas/
+/outputs/
+/logs/
+/*.fbs
+*.csv
+*.json
+*.jsonl
+*.html
+
+# === Archivos del motor que NO deben subirse bajo ningún concepto ===
+# Asume que el motor está bajo /engine-core o similar
+/engine-core/
+/com/mcp/engine/
+/src/main/java/com/mcp/engine/
+/src/main/java/com/mcp/internal/
+
+# === Otros ===
+*.~*
+*.class
+
+# === Archivos específicos de tests si no quieres subirlos ===
+/src/test/
+
+# === Ajustes personales ===
+/.vscode/
+/.idea/
+/*.launch
+*.prefs
