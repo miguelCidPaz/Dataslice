@@ -47,8 +47,7 @@ Thumbs.db
 *.jsonl
 *.html
 
-# === Archivos del motor que NO deben subirse bajo ningún concepto ===
-# Asume que el motor está bajo /engine-core o similar
+# === Archivos engine-core y mcp ===
 /engine-core/
 /com/mcp/engine/
 /src/main/java/com/mcp/engine/

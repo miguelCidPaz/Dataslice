@@ -1,11 +1,13 @@
 package com.mcp.dataslice;
 
-import com.mcp.dataslice.adapters.AdapterFactory;
-import com.mcp.dataslice.adapters.DatasetAdapter;
 import com.mcp.dataslice.core.ProfilerRunner;
 import com.mcp.dataslice.utils.Constants;
 import com.mcp.dataslice.utils.DataSliceLogger;
 import com.mcp.dataslice.models.InputReadBlock;
+
+import com.mcp.io.models.ReadBatch;
+import com.mcp.io.reader.TabularReader;
+import com.mcp.io.factory.ReaderFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -63,21 +65,27 @@ public class Main {
         }
 
         for (File file : filesToProcess) {
-            String ext = getFileExtension(file);
-            DatasetAdapter adapter = AdapterFactory.getAdapter(ext);
-            if (adapter == null) {
+            TabularReader reader;
+            try {
+                reader = ReaderFactory.of(file.getAbsolutePath());
+            } catch (UnsupportedOperationException e) {
                 DataSliceLogger.warn("❌ Unsupported file: " + file.getName());
                 continue;
             }
 
-            DataSliceLogger.info("📂 Adapter loaded for: " + file.getName());
+            DataSliceLogger.info("📂 Reader loaded for: " + file.getName());
 
             ProfilerRunner runner = new ProfilerRunner(threadCounter);
 
             pool.submit(() -> {
                 try {
-                    Iterable<InputReadBlock> blocks = adapter.loadDataset(file.getAbsolutePath(), Constants.MAX_BLOCK_ROWS);
-                    for (InputReadBlock block : blocks) {
+                    Iterable<ReadBatch> batches = reader.read(file.getAbsolutePath(), Constants.MAX_BLOCK_ROWS);
+                    for (ReadBatch batch : batches) {
+                        InputReadBlock block = new InputReadBlock(
+                            batch.getData(),
+                            batch.getHeaders(),
+                            batch.getDatasetName()
+                        );
                         runner.runLearnMode(block);
                     }
                 } catch (Exception e) {
@@ -100,12 +108,6 @@ public class Main {
 
         ProfilerRunner finalRunner = new ProfilerRunner(new AtomicInteger(1));
         finalRunner.readProduct();
-    }
-
-    private static String getFileExtension(File file) {
-        String name = file.getName();
-        int lastDot = name.lastIndexOf('.');
-        return (lastDot == -1) ? "" : name.substring(lastDot + 1).toLowerCase();
     }
 
     private static void printHelp() {
