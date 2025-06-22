@@ -1,42 +1,50 @@
+
 # 📦 DataSlice Orchestrator
 
-🌐 Available languages: [🇬🇧 English](README.md) | [🇪🇸 Español](README.es.md)
+🌐 Available languages: [🇬🇧 English](README.md) | [🇪🇸 Spanish](README.es.md)
 
-**DataSlice** is a lightweight, modular, and efficient file orchestrator. Its mission is clear: enable massive analysis of tabular data without requiring clusters, complex frameworks, or heavy infrastructure.
+**DataSlice** is a lightweight, modular, and efficient file orchestrator. Its mission is clear: enable massive analysis of tabular data without requiring clusters, complex frameworks, and with a decoupled architecture that makes it extremely flexible.
 
-> ⚠️ **Warning**: This orchestrator **does NOT include** any analysis or processing engine. It works by connecting input adapters to output blocks and delegates the actual execution to an external engine.
+> ⚠️ **Note**: This orchestrator **does not include** any processing or analysis engine. It connects input adapters with output blocks and delegates execution to an external engine.
 
 ---
 
 ## 🚀 Key Features
 
-- ✅ Native support for **CSV**, **JSON**, and **JSONL** files, even simultaneously.
-- 🔌 Adapter and block-based architecture, easy to extend.
+- ✅ Native support for **CSV**, **JSON**, **JSONL**, and **PARQUET** files—even simultaneously.
+- 🔌 Architecture based on **adapters and read blocks**, easy to extend.
 - 🧱 Designed to work with external processing engines, either custom or third-party.
-- 🧠 Built to handle **millions of records per file** without crashing memory.
-- 🧰 Includes additional tools like a **streaming dataset generator**.
+- 🧠 Built to handle **millions of rows per file** without blowing up memory.
+- 🧰 Includes extra tools like a **streaming dataset generator**.
 
 ---
 
 ## 📂 Basic Structure
 
 ```bash
-├── adapters/           # Loaders for each file type (CSV, JSON, JSONL...)
 ├── models/             # Common data structures
 ├── utils/              # Logs, helper tools
-├── runner/             # Entry point to run with external engine
-└── example/            # Simple usage cases
+└── runner/             # Entry point to run with an external engine
 ```
 
 ---
 
-## 🧠 On Race Conditions
+## 🧩 Integration with DataKeyring
 
-**IMPORTANT**: This orchestrator is optimized for high performance. In multi-threaded or massive load scenarios, **no artificial synchronization control is enforced**.
+**DataSlice** does not include file reading logic.  
+All file reading (**CSV**, **JSON**, **JSONL**, **Parquet**) is delegated to the external module **[DataKeyring](https://github.com/miguelCidPaz/datakeyring)**, a format keyring optimized for batch processing.
 
-> ⚠️ If you connect a motor not ready for asynchronous or parallel flows, you may encounter intermittent errors (e.g., `null` during read/write).
+> 🧼 This separation keeps the orchestrator clean, decoupled, and easily extensible to new formats or reading engines.
 
-**Tip**: Make sure your target engine implements proper buffers or semaphores. It is not the orchestrator's responsibility to guarantee consistency in uncontrolled environments.
+---
+
+## 🧠 About Race Conditions
+
+**IMPORTANT**: This orchestrator is optimized for high performance. In multi-threaded or massive-load scenarios, **no artificial synchronization is imposed**.
+
+> ⚠️ If you connect a backend not designed for async or parallel flows, you may encounter intermittent issues (e.g., `null` during read or write).
+
+**Tip**: Make sure your receiving engine implements proper buffers or semaphores. Ensuring consistency in uncontrolled environments is **not** the orchestrator's responsibility.
 
 ---
 
@@ -45,20 +53,8 @@
 - Large-scale validations
 - Controlled benchmarks
 - Massive data ingestion
-- ML training pipelines
+- ML training scenarios
 - Decoupled distributed processing
-
----
-
-## 🛠️ Additional Tool: Dataset Generator
-
-Includes a dataset generator that:
-
-- Writes directly to disk using streams
-- Doesn't collapse memory
-- Supports customizable column and volume configuration
-
-⚠️ *Caution: a CSV with 100 million rows may take up several GB. Use wisely.*
 
 ---
 
@@ -66,11 +62,11 @@ Includes a dataset generator that:
 
 ```bash
 # Clone the repository
-$ git clone https://github.com/youruser/dataslice-orchestrator.git
+$ git clone https://github.com/tuusuario/dataslice-orchestrator.git
 
-# Import as Maven project in Eclipse or STS
+# Import as a Maven project in Eclipse or STS
 
-# Run a sample dataset test
+# Run a test with a sample dataset
 $ mvn clean install
 $ java -jar target/dataslice-0.0.1-SNAPSHOT.jar data/
 ```
@@ -81,12 +77,12 @@ $ java -jar target/dataslice-0.0.1-SNAPSHOT.jar data/
 
 This project is distributed under the **Apache 2.0** license.
 
-You may use, modify, and distribute it freely as long as you comply with the original license terms.
+You are free to use, modify, and distribute it as long as you respect the terms of the original license.
 
 ---
 
 ## 🙌 Credits
 
-Developed by [Miguel Cid](https://www.linkedin.com/in/miguel-cid-paz-picon/) as part of his predictive API tools stack.
+Developed by [Miguel Cid](https://www.linkedin.com/in/miguel-cid-paz-picon/) as part of his modular stack for predictive API tools.
 
 Thanks for using DataSlice! 🚀

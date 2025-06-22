@@ -10,7 +10,7 @@
 
 ## 🚀 Características principales
 
-- ✅ Soporte nativo para archivos **CSV**, **JSON** y **JSONL**, incluso en simultáneo.
+- ✅ Soporte nativo para archivos **CSV**, **JSON**, **JSONL** y **PARQUET** incluso en simultáneo.
 - 🔌 Arquitectura basada en **adaptadores y bloques de lectura**, fácil de extender.
 - 🧱 Pensado para trabajar con motores de procesamiento externos, ya sea propios o de terceros.
 - 🧠 Preparado para manejar flujos de **millones de registros por archivo** sin explotar la memoria.
@@ -21,12 +21,19 @@
 ## 📂 Estructura básica
 
 ```bash
-├── adapters/           # Cargadores para cada tipo de archivo (CSV, JSON, JSONL...)
 ├── models/             # Estructuras de datos comunes
 ├── utils/              # Logs, herramientas auxiliares
-├── runner/             # Punto de entrada para ejecutar con motor externo
-└── example/            # Casos de uso simples
+└── runner/             # Punto de entrada para ejecutar con motor externo
 ```
+
+---
+
+## 🧩 Integración con DataKeyring
+
+**DataSlice** no contiene lógica de lectura de formatos.  
+Toda la lectura de archivos (**CSV**, **JSON**, **JSONL**, **Parquet**) se delega al módulo externo **[DataKeyring](https://github.com/miguelCidPaz/datakeyring)**, un llavero de formatos optimizado para procesamiento por lotes.
+
+> 🧼 Esta separación permite mantener el orquestador limpio, desacoplado y fácilmente extensible a nuevos formatos o motores de lectura.
 
 ---
 
@@ -47,18 +54,6 @@
 - Ingesta masiva de datos
 - Casos de entrenamiento para ML
 - Procesamiento distribuido desacoplado
-
----
-
-## 🛠️ Herramienta adicional: Generador de datasets
-
-Incluye un generador de datasets que:
-
-- Escribe a disco directamente usando streams
-- No colapsa la memoria
-- Soporta configuraciones personalizadas de columnas y volúmenes
-
-⚠️ *Ten cuidado: un CSV de 100 millones de filas puede ocupar varios GB. Úsalo con cabeza.*
 
 ---
 

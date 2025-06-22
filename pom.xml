@@ -42,8 +42,8 @@
 		<!-- DataKeyring -->
 		<dependency>
 			<groupId>com.mcp.datakey</groupId>
-			<artifactId>DataKeyring</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>Datakeyring</artifactId>
+			<version>0.0.1</version>
 		</dependency>
         
     </dependencies>
