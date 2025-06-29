@@ -57,7 +57,8 @@ public class Main {
             return;
         }
 
-        
+
+        ProfilerRunner runner = new ProfilerRunner(threadCounter);
         for (File file : filesToProcess) {
             TabularReader reader;
             try {
@@ -72,16 +73,15 @@ public class Main {
             for (ReadBatch batch : reader.read(file.getAbsolutePath(),
                     Constants.MAX_BLOCK_ROWS)) {
                 pool.submit(() -> {
-                    ProfilerRunner runner = new ProfilerRunner(threadCounter);
-                    try {
-						runner.runLearnMode(new InputReadBlock(
-						        batch.getData(),
-						        batch.getHeaders(),
-						        batch.getDatasetName()));
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+						try {
+							runner.runLearnMode(new InputReadBlock(
+							        batch.getData(),
+							        batch.getHeaders(),
+							        batch.getDatasetName()));
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
                 });
             }
         }
@@ -96,7 +96,7 @@ public class Main {
         }
 
         
-        new ProfilerRunner(new AtomicInteger(1)).readProduct();
+        runner.readProduct();
     }
 
 
