@@ -33,6 +33,7 @@ public class Main {
 
         String path = args[0];
         handleLearn(path);
+        
 
         long durationMillis = System.currentTimeMillis() - startTime;
         DataSliceLogger.specialInfo("⏱ Total time: " + durationMillis + " ms");
@@ -40,30 +41,23 @@ public class Main {
 
     private static void handleLearn(String path) {
         File input = new File(path);
+
+        
         int numThreads = Runtime.getRuntime().availableProcessors();
         ForkJoinPool pool = new ForkJoinPool(numThreads);
         AtomicInteger threadCounter = new AtomicInteger(1);
 
-        DataSliceLogger.info("🛠 Pool configured with " + numThreads + " threads");
-
         List<File> filesToProcess = new ArrayList<>();
-
         if (input.isDirectory()) {
-            File[] files = input.listFiles();
-            if (files == null || files.length == 0) {
-                DataSliceLogger.info("❌ Error: The directory is empty or unreadable.");
-                return;
-            }
-            for (File file : files) {
-                if (file.isFile()) filesToProcess.add(file);
-            }
+            for (File f : input.listFiles()) if (f.isFile()) filesToProcess.add(f);
         } else if (input.isFile()) {
             filesToProcess.add(input);
         } else {
-            DataSliceLogger.info("❌ Error: Invalid path → " + path);
+            DataSliceLogger.info("❌ Invalid path → " + path);
             return;
         }
 
+        
         for (File file : filesToProcess) {
             TabularReader reader;
             try {
@@ -72,43 +66,40 @@ public class Main {
                 DataSliceLogger.warn("❌ Unsupported file: " + file.getName());
                 continue;
             }
-
             DataSliceLogger.info("📂 Reader loaded for: " + file.getName());
 
-            ProfilerRunner runner = new ProfilerRunner(threadCounter);
-
-            pool.submit(() -> {
-                try {
-                    Iterable<ReadBatch> batches = reader.read(file.getAbsolutePath(), Constants.MAX_BLOCK_ROWS);
-                    for (ReadBatch batch : batches) {
-                        InputReadBlock block = new InputReadBlock(
-                            batch.getData(),
-                            batch.getHeaders(),
-                            batch.getDatasetName()
-                        );
-                        runner.runLearnMode(block);
-                    }
-                } catch (Exception e) {
-                    DataSliceLogger.error("❌ Error processing " + file.getName() + ": " + e.getMessage());
-                }
-            });
+            
+            for (ReadBatch batch : reader.read(file.getAbsolutePath(),
+                    Constants.MAX_BLOCK_ROWS)) {
+                pool.submit(() -> {
+                    ProfilerRunner runner = new ProfilerRunner(threadCounter);
+                    try {
+						runner.runLearnMode(new InputReadBlock(
+						        batch.getData(),
+						        batch.getHeaders(),
+						        batch.getDatasetName()));
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                });
+            }
         }
 
+        
+        pool.shutdown();
         try {
-            pool.shutdown();
-            if (!pool.awaitTermination(1, TimeUnit.HOURS)) {
-                DataSliceLogger.warn("⚠ Timeout while waiting for threads to finish.");
-                pool.shutdownNow();
-            }
+            pool.awaitTermination(1, TimeUnit.HOURS);
         } catch (InterruptedException e) {
-            DataSliceLogger.error("❌ Error waiting for threads → " + e.getMessage());
             pool.shutdownNow();
             Thread.currentThread().interrupt();
         }
 
-        ProfilerRunner finalRunner = new ProfilerRunner(new AtomicInteger(1));
-        finalRunner.readProduct();
+        
+        new ProfilerRunner(new AtomicInteger(1)).readProduct();
     }
+
+
 
     private static void printHelp() {
         DataSliceLogger.info("\n=== 📊 DataSlice CLI ===");
